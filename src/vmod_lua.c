@@ -301,6 +301,7 @@ static var_handler_t  server_handlers[] = {
 /* "import lua" */
 int
 init_function(struct vmod_priv *priv, const struct VCL_conf *conf)
+
 {
     LOG_T("VMOD[lua] init_function called\n");
 
@@ -372,7 +373,7 @@ vmod_init(const struct vrt_ctx *ctx, struct vmod_priv *priv,
 /* "lua.call(function)" */
 const char *
 vmod_call(const struct vrt_ctx *ctx, struct vmod_priv *priv,
-    const char *function)
+    const char *function, const char *value)
 {
     lua_State     *L, *BL;
     const char    *ret = NULL;
@@ -460,7 +461,8 @@ vmod_call(const struct vrt_ctx *ctx, struct vmod_priv *priv,
         lua_pushcfunction(L, traceback);
         lua_insert(L, base);
 
-        if (lua_pcall(L, 0, 1, base) != 0) {
+        lua_pushstring(L, value);
+	if (lua_pcall(L, 1, 1, base) != 0) {
             LOG_E("VMOD[lua] call function \"%s\" failed, errstr=\"%s\"\n",
                   function, luaL_checkstring(L, -1));
             /* clear Lua stack to execute other functions */
